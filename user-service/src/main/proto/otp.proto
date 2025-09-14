@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.cs301.shared;
+
+option java_multiple_files = true;
+option java_package = "com.cs301.shared.protobuf";
+
+message Otp {
+
+  // Email of when the user that performed a dangerous method (disable, enable, create)
+  // Type: string
+  // Example: "john@scrooge-bank.com"
+  string user_email = 1;
+
+  // OTP to validate against
+  // Type: uint32 (unsigned int, only positive)
+  // Example: "john@scrooge-bank.com"
+  uint32 otp = 2;
+
+  // Timestamp of when the otp was generated, in ISO 8601 format (UTC).
+  // Type: string (ISO 8601 format), created by Instant class in Java
+  // Example: "2021-03-11T22:04:16.000Z"
+  string timestamp = 3;
+}

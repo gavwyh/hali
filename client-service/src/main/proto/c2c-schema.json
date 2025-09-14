@@ -1,0 +1,4 @@
+{
+  "schemaType": "PROTOBUF",
+  "schema": "syntax = \"proto3\";\n\npackage com.cs301.shared;\n\noption java_multiple_files = true;\noption java_package = \"com.cs301.shared.protobuf\";\n\n// Represents a client account action notification\nmessage C2C {\n  \n  // Unique identifier for the agent who performed the action\n  string agent_id = 1;\n\n  // Unique identifier of the client affected by the action\n  string client_id = 2;\n\n  // Email address of the client\n  string client_email = 3;\n\n  // Type of CRUD operation performed (CREATE, UPDATE, DELETE)\n  string crud_type = 4;\n\n  // Additional information about the CRUD action\n  CRUDInfo crud_info = 5;\n}\n\n// Represents details of a CRUD operation\nmessage CRUDInfo {\n  \n  // Name of the attribute being changed\n  string attribute = 1;\n\n  // Previous value of the attribute\n  string before_value = 2;\n\n  // New value of the attribute\n  string after_value = 3;\n}"
+}

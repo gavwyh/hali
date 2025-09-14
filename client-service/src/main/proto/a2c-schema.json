@@ -1,0 +1,4 @@
+{
+  "schemaType": "PROTOBUF",
+  "schema": "syntax = \"proto3\";\n\npackage com.cs301.shared;\n\noption java_multiple_files = true;\noption java_package = \"com.cs301.shared.protobuf\";\n\n// Represents a client account action notification\nmessage A2C {\n  \n  // Unique identifier for the agent who performed the action\n  string agent_id = 1;\n\n  // Unique identifier of the client affected by the action\n  string client_id = 2;\n\n  // Email address of the client\n  string client_email = 3;\n\n  // Type of CRUD operation performed (CREATE, UPDATE, DELETE)\n  string crud_type = 4;\n\n  string account_id = 5;\n\n  // Type of banking account (SAVINGS, CHECKING, BUSINESS)\n  string account_type = 6;\n}"
+}

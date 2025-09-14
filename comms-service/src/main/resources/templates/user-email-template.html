@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Scrooge Bank User Access Granted</title>
+</head>
+<body style="font-family: Inter, sans-serif; line-height: 1.6; background-color: #f9f9f9; padding: 20px;">
+    <table style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <tr>
+            <td >
+                <h2 style="color: #333; text-align: center;">Scrooge Bank User Access Granted</h2>
+                <p style="color: #000;">Welcome, <strong>{{user_role}}</strong>!</p>
+                <div>
+                    We are pleased to inform you that your account verification is successful, and you now have access to your Scrooge Bank user account. 
+                </div>
+            </td>
+        </tr>
+        <tr>
+            
+            <td style="padding: 12px; padding-top:30px;">
+                <table style="flex:1; justify-content:center; width: 100%; border-collapse: collapse; font-size: 14px; padding-left: 6px;">
+                    <tr>
+                        <td style="padding: 8px; background: #f3f3f3; font-weight: bold; width: 30%">Username:</td>
+                        <td style="padding: 8px;">{{username}}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; background: #f3f3f3; font-weight: bold; width: 30%">Temporary Password:</td>
+                        <td style="padding: 8px;">{{temp_password}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 12px;">Please confirm your credentials at: <a href="{{base_domain}}/users/reset-password">{{base_domain}}/users/reset-password</a>, where you will be prompted to reset your password.</td>
+        </tr>
+        <tr>
+            <td style="text-align: center; padding-top: 10px;">
+                <p style="color: #888; font-size: 14px;">
+                    If you did not authorize this action or have concerns, please contact our support team immediately.
+                </p>
+                <p style="color: #888; font-size: 12px;">
+                    This is an automated email. Please do not reply.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

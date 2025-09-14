@@ -1,0 +1,40 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: ${USER_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/api/v1/users/**,/api/v1/auth/**
+        - id: client-service
+          uri: ${CLIENT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/clients/**,/api/v1/accounts/**,/api/v1/client-logs/**,/api/v1/transactions/**
+        - id: logs-service
+          uri: ${LOGS_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/user-logs/**
+        - id: comms-service
+          uri: ${COMMS_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/communications/**
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          "[/**]":
+            allowedOrigins: "${FRONTEND_URL:http://localhost:3000}"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true

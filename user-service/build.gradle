@@ -1,0 +1,83 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.4'
+    id 'com.github.ben-manes.versions' version '0.52.0'
+}
+
+group = 'com.cs301'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://packages.confluent.io/maven'
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.25.5'
+    }
+}
+
+ext {
+    set('springCloudVersion', "2024.0.0")
+}
+
+dependencies {
+
+    // MapStruct and Lombok
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    implementation 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Spring dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.kafka:spring-kafka'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Confluent dependencies
+    implementation 'io.confluent:kafka-protobuf-serializer:7.9.0'
+
+    // Database dependencies
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+
+    // AWS dependencies
+    implementation platform('software.amazon.awssdk:bom:2.31.11') // Use the latest version
+    implementation 'software.amazon.awssdk:secretsmanager'
+    implementation 'software.amazon.glue:schema-registry-serde:1.1.23'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

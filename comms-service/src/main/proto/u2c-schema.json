@@ -1,0 +1,4 @@
+{
+    "schemaType": "PROTOBUF",
+    "schema": "syntax = \"proto3\";\npackage com.cs301.shared;\n\noption java_multiple_files = true;\noption java_package = \"com.cs301.shared.protobuf\";\nmessage U2C {\n  string user_email = 1;\n  string username = 2;\n  string temp_password = 3;\n  string user_role = 4;\n}"
+}

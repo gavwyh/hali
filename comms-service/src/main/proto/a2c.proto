@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package com.cs301.shared;
+
+option java_multiple_files = true;
+option java_package = "com.cs301.shared.protobuf";
+
+// Represents a client account action notification
+message A2C {
+  
+  // Unique identifier for the agent who performed the action
+  string agent_id = 1;
+
+  // Unique identifier of the client affected by the action
+  string client_id = 2;
+
+  // Email address of the client
+  string client_email = 3;
+
+  // Type of CRUD operation performed (CREATE, UPDATE, DELETE)
+  string crud_type = 4;
+
+  // Unique identifier of account
+  string account_id = 5;
+
+  // Account Type
+  string account_type = 6;
+}
+

@@ -1,0 +1,169 @@
+# Default values for user-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: 345215350058.dkr.ecr.ap-southeast-1.amazonaws.com/cs301-crm/user-service
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+# set envs for the spring app
+env:
+  - name: SPRING_REDIS_HOST
+    value: "redis-master.default.svc.cluster.local"
+  - name: SPRING_DATASOURCE_PORT
+    value: 5432
+  - name: SPRING_DATASOURCE_URL
+    value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/user-db"
+  - name: SPRING_DATASOURCE_DRIVER
+    value: "org.postgresql.Driver"
+  - name: SPRING_JPA_DDL
+    value: "update"
+  - name: SPRING_JPA_DIALECT
+    value: org.hibernate.dialect.PostgreSQLDialect
+  - name: HTTPS_ENABLED
+    value: true
+  - name: CORS_ORIGIN
+    value: https://itsag3t3.com
+  - name: SPRING_DATASOURCE_HOST
+    valueFrom:
+      secretKeyRef:
+        name: db-host
+        key: k8s-spring-datasource-host
+  - name: JWT_PRIVATE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: jwt-private-key
+        key: k8s-jwt-private-key
+  - name: SPRING_DATASOURCE_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: db-k8s-credentials
+        key: k8s-db-username
+  - name: SPRING_DATASOURCE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-credentials
+        key: k8s-db-password
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "scrooge-bank-secrets"
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 8080
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 800m
+    memory: 1Gi # 3GB memory
+  requests:
+    cpu: 400m
+    memory: 512Mi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 40
+  periodSeconds: 10
+  failureThreshold: 5
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 40
+  periodSeconds: 10
+  failureThreshold: 5
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: true
+  minReplicas: 2 # Increased for high availability
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 70
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: secrets
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: scrooge-bank-secrets-provider
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: secrets
+    mountPath: /mnt/secrets
+    readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

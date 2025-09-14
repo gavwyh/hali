@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-metrics
+  namespace: default 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummy-metrics
+  template:
+    metadata:
+      labels:
+        app: dummy-metrics
+    spec:
+      containers:
+      - name: dummy-metrics
+        image: 345215350058.dkr.ecr.ap-southeast-1.amazonaws.com/test-monitoring/dummy-metrics:latest
+        ports:
+        - name: http-metrics
+          containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dummy-metrics
+  namespace: default
+  labels:
+    app: dummy-metrics
+spec:
+  selector:
+    app: dummy-metrics
+  ports:
+  - name: http-metrics
+    protocol: TCP
+    port: 8070 # service port
+    targetPort: 8000 # container port

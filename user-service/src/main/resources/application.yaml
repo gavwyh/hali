@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:~/test;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE}
+    driverClassName: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+  jpa:
+    database-platform: ${SPRING_JPA_DIALECT:org.hibernate.dialect.H2Dialect}
+    hibernate:
+      ddl-auto: ${SPRING_JPA_DDL:create-drop}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      properties:
+        schema.registry.url: ${KAFKA_REGISTRY:http://localhost:8000}
+  data:
+    redis:
+      database: ${SPRING_REDIS_DATABASE:0}
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+
+kafka:
+  topic:
+    log: ${KAFKA_LOG_TOPIC:logs}
+    u2c: ${KAFKA_U2C_TOPIC:u2c}
+    otp: ${KAFKA_OTP_TOPIC:otps}
+
+cors:
+  origin: ${CORS_ORIGIN:http://localhost:3000}
+
+cookie:
+  httpsEnabled: ${HTTPS_ENABLED:false}
+
+otp:
+  expiration: ${OTP_EXPIRATION_TIME:300}
+
+jwt:
+  issuer: ${JWT_ISSUER:http://localhost:8080/api/v1/auth}
+  id: ${JWT_KEY_ID:6f976ce0-4aad-47d7-a141-b7d40e44ea16}
+  private:
+    key: ${JWT_PRIVATE_KEY}
+  public:
+    key: ${JWT_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtGnaj7iZohusudAuqSI/FOjeuPiroTHgvULsP3s2i/RzDa2fKExo/+PeoViFa1nk3ieSxFTvZ+2tahMsm/30xN6KSG7F/RX5DrV9Rf5HHumPeGl8HiJrWTnuViKD1FtxYa2p9l9Yx7PjxqvAGtD0wJ6Gejyp2wJtj/daEz4iWYA2mMTesANsQ5uEM1RWr2cs57LfirYUf3v3HsbVyreYZstoJkrwKusiuv/75wvse374xQL8EZiRyklppgd2c152uC65UKDP3+lfSpyO+IeWDHXesqsO6HtciDgIKVz4aYbdi1Ly67NXXKSVQYgZocQjhNum9aidtR86r1CBvO80BQIDAQAB}
+  refresh:
+    duration: ${JWT_REFRESH_DURATION:32400}
+  access:
+    duration: ${JWT_EXPIRATION_TIME:240}

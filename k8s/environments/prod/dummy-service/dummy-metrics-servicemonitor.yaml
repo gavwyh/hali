@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dummy-metrics-monitor
+  namespace: default
+  labels:
+    release: prometheus  # This label must match the Prometheus Operator's selector
+spec:
+  selector:
+    matchLabels:
+      app: dummy-metrics  # This must match the labels on your Service
+  endpoints:
+  - port: http-metrics        # The port exposed by your Service
+    path: /metrics        # The path where metrics are exposed
