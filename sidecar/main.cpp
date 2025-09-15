@@ -3,9 +3,13 @@
 #include <thread>
 #include <memory>
 #include <signal.h>
+#include <atomic>
 #include "log_watcher.h"
 #include "metrics_server.h"
 #include "config.h"
+
+// Atomic flag for shutdown signaling
+std::atomic<bool> g_shutdown_requested(false);
 
 std::unique_ptr<LogWatcher> g_log_watcher;
 std::unique_ptr<MetricsServer> g_metrics_server;
@@ -17,14 +21,13 @@ std::unique_ptr<MetricsServer> g_metrics_server;
 * @param signum The signal number received (e.g., SIGINT, SIGTERM).
 */
 void signal_handler(int signum) {
-    std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
+    g_shutdown_requested.store(true);
     if (g_log_watcher) {
         g_log_watcher->Stop();
     }
     if (g_metrics_server) {
         g_metrics_server->Stop();
     }
-    exit(signum);
 }
 
 /**
@@ -52,23 +55,23 @@ int main(int argc, char* argv[]) {
         std::cout << "Loki endpoint: " << config.loki_endpoint << std::endl;
         std::cout << "Metrics port: " << config.metrics_port << std::endl;
         
-        // Run metrics server on another thread 
+        // Start metrics server on another thread to run concurrently with log watcher
         g_metrics_server = std::make_unique<MetricsServer>(config.metrics_port);
         std::thread metrics_thread([&]() {
             g_metrics_server->start();
-        });
+        }); 
         
-        // Initialize log watcher
         g_log_watcher = std::make_unique<LogWatcher>(config);
         
-        // Start log watching (blocking)
+        // Block and watch for logs
         g_log_watcher->start();
         
-        // Wait for metrics thread
         if (metrics_thread.joinable()) {
             metrics_thread.join();
         }
         
+        std::cout << "Sidecar shut down gracefully." << std::endl;
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return EXIT_FAILURE;
