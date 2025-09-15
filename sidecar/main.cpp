@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <chrono>
 #include <thread>
 #include <memory>
 #include <signal.h>
@@ -22,12 +23,6 @@ std::unique_ptr<MetricsServer> g_metrics_server;
 */
 void signal_handler(int signum) {
     g_shutdown_requested.store(true);
-    if (g_log_watcher) {
-        g_log_watcher->Stop();
-    }
-    if (g_metrics_server) {
-        g_metrics_server->Stop();
-    }
 }
 
 /**
@@ -50,9 +45,9 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         
-        std::cout << "Starting log processing sidecar..." << std::endl;
-        std::cout << "Log directory: " << config.log_directory << std::endl;
-        std::cout << "Loki endpoint: " << config.loki_endpoint << std::endl;
+        std::cout << "Starting log processing sidecar...\n";
+        std::cout << "Log directory: " << config.log_directory << "\n";
+        std::cout << "Loki endpoint: " << config.loki_endpoint << "\n";
         std::cout << "Metrics port: " << config.metrics_port << std::endl;
         
         // Start metrics server on another thread to run concurrently with log watcher
@@ -65,6 +60,18 @@ int main(int argc, char* argv[]) {
         
         // Block and watch for logs
         g_log_watcher->start();
+
+        while (!g_shutdown_requested.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }   
+        std::cout << "Shutdown signal received. Cleaning up..." << std::endl;
+        
+        if (g_log_watcher) {
+            g_log_watcher->stop();
+        }
+        if (g_metrics_server) {
+            g_metrics_server->stop(); 
+        }
         
         if (metrics_thread.joinable()) {
             metrics_thread.join();
