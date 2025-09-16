@@ -21,7 +21,7 @@ std::unique_ptr<MetricsServer> g_metrics_server;
 * exiting to flush all logs and clean up resources.
 * @param signum The signal number received (e.g. SIGTERM).
 */
-void signal_handler(int signum) {
+void signal_handler([[maybe_unused]] int signum) {
     g_shutdown_requested.store(true);
 }
 
@@ -32,7 +32,7 @@ void signal_handler(int signum) {
 * @param argv Array of CLI args.
 * @return 0 on successful execution, 1 on failure.
 */
-int main(int argc, char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     // Setup signal handlers for graceful shutdown
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
