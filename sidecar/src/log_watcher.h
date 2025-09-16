@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <map>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -16,7 +17,7 @@
 
 class LogWatcher {
 public:
-    explicit LogWatcher(const Config& config);
+    explicit LogWatcher(const Config& config, Metrics& shared_metrics);
     ~LogWatcher();
 
     void start();
@@ -31,7 +32,7 @@ private:
 
     Config config_;
     std::unique_ptr<LokiClient> loki_client_;
-    std::unique_ptr<Metrics> metrics_;
+    Metrics& metrics_;
 
     std::atomic<bool> running_;
     std::thread watcher_thread_;

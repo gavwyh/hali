@@ -14,6 +14,7 @@ std::atomic<bool> g_shutdown_requested(false);
 
 std::unique_ptr<LogWatcher> g_log_watcher;
 std::unique_ptr<MetricsServer> g_metrics_server;
+std::unique_ptr<Metrics> g_metrics;
 
 /**
 * Handles system signals for graceful shutdown.
@@ -50,13 +51,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         std::cout << "Loki endpoint: " << config.loki_endpoint << "\n";
         std::cout << "Metrics port: " << config.metrics_port << std::endl;
 
+        g_metrics = std::make_unique<Metrics>();
+        
         // Start metrics server on another thread to run concurrently with log watcher
         g_metrics_server = std::make_unique<MetricsServer>(config.metrics_port);
         std::thread metrics_thread([&]() {
             g_metrics_server->start();
         });
 
-        g_log_watcher = std::make_unique<LogWatcher>(config);
+        g_log_watcher = std::make_unique<LogWatcher>(config, *g_metrics);
         std::thread log_watcher_thread([&]() {
             g_log_watcher->start();
         });
