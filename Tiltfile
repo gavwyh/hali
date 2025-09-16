@@ -106,6 +106,11 @@ k8s_resource(workload="scrooge-bank-mongo", port_forwards='27017:27017', resourc
 k8s_yaml(helm("./k8s/charts/redis/", name="redis", values="./k8s/charts/redis/values.yaml"))
 k8s_resource(workload="redis-master", port_forwards='6379:6379', resource_deps=["schema-registry"])
 
+k8s_yaml('./scripts/monitoring-stack.yaml')
+k8s_resource(workload="loki", port_forwards='3100:3100', resource_deps=["schema-registry"])
+k8s_resource(workload="prometheus", port_forwards='9090:9090', resource_deps=["loki"])
+k8s_resource(workload="grafana", port_forwards='3000:3000', resource_deps=["prometheus"])
+
 count = 0
 for module in modules:
     # Specify image name, start of path, relative path to Dockerfile
