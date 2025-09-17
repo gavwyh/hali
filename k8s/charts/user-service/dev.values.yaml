@@ -164,3 +164,31 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+# Add this sidecar section to the existing file:
+
+sidecar:
+  enabled: true
+  image:
+    repository: log-sidecar/dev
+    tag: latest
+    pullPolicy: Always
+  loki:
+    endpoint: "http://loki:3100"
+  batchSize: 100
+  flushIntervalMs: 5000
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001

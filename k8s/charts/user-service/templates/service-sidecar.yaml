@@ -1,0 +1,18 @@
+{{- if .Values.sidecar.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "user-service.fullname" . }}-sidecar
+  labels:
+    {{- include "user-service.labels" . | nindent 4 }}
+    component: sidecar
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "user-service.selectorLabels" . | nindent 4 }}
+{{- end }}

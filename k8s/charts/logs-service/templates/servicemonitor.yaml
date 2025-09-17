@@ -1,0 +1,19 @@
+{{- if and .Values.sidecar.enabled .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "logs-service.fullname" . }}-sidecar
+  labels:
+    {{- include "logs-service.labels" . | nindent 4 }}
+    component: sidecar
+spec:
+  selector:
+    matchLabels:
+      {{- include "logs-service.selectorLabels" . | nindent 6 }}
+      component: sidecar
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+{{- end }}

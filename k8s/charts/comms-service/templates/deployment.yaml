@@ -51,6 +51,14 @@ spec:
               value: {{ .value | quote }}
             {{- end }}
             {{- end }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           {{- if .Values.envFrom }}
           envFrom:
             {{- toYaml .Values.envFrom | nindent 12 }}
@@ -67,14 +75,74 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - name: log-volume
+              mountPath: /var/log/app
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        
+        # Log processing sidecar container
+        {{- if .Values.sidecar.enabled }}
+        - name: log-sidecar
+          image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: LOG_DIRECTORY
+              value: "/var/log/app"
+            - name: LOKI_ENDPOINT
+              value: {{ .Values.sidecar.loki.endpoint | quote }}
+            - name: SERVICE_NAME
+              value: {{ include "comms-service.fullname" . | quote }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: METRICS_PORT
+              value: "9090"
+            - name: BATCH_SIZE
+              value: {{ .Values.sidecar.batchSize | quote }}
+            - name: FLUSH_INTERVAL_MS
+              value: {{ .Values.sidecar.flushIntervalMs | quote }}
+            {{- with .Values.sidecar.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: log-volume
+              mountPath: /var/log/app
+              readOnly: true
+          {{- with .Values.sidecar.resources }}
+          resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with .Values.sidecar.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      
       volumes:
+        - name: log-volume
+          emptyDir: {}
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
