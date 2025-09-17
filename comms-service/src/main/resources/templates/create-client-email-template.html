@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Profile</title>
+</head>
+<body style="font-family: Inter, sans-serif; line-height: 1.6; background-color: #f9f9f9; padding: 20px;">
+    <table style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <tr>
+            <td>
+                <h2 style="color: #333; text-align: center;">Verify Your Profile</h2>
+                <p style="color: #000;">Dear Customer (<strong>{{client_id}}</strong>),</p>
+                <div>
+                    Thank you for choosing Scrooge Bank as your preferred banking service. <br>We are pleased to inform you that your profile will be successfully created once you have fully onboarded with us. 
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 12px;">To complete your onboarding process, please <a href="{{base_domain}}/clients/{{client_id}}/verify">verify your profile</a> within the next 5 minutes.</td>
+        </tr>
+        <tr>
+            <td style="text-align: center; padding-top: 20px;">
+                <p style="color: #888; font-size: 14px;">
+                    If you did not authorize this action or have concerns, please contact our support team immediately.
+                </p>
+                <p style="color: #888; font-size: 12px;">
+                    This is an automated email. Please do not reply.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

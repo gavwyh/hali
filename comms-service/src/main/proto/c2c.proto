@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.cs301.shared;
+
+option java_multiple_files = true;
+option java_package = "com.cs301.shared.protobuf";
+
+// Represents a client profile action notification
+message C2C {
+  string agent_id = 1;
+  string client_id = 2;
+  string client_email = 3;
+  string crud_type = 4;
+  CRUDInfo crud_info = 5;
+}
+
+// Represents details of a CRUD operation
+message CRUDInfo {
+  string attribute = 1;
+  string before_value = 2;
+  string after_value = 3;
+}

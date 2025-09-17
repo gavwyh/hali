@@ -1,0 +1,5 @@
+{
+    "schemaType": "PROTOBUF",
+    "schema": "syntax = \"proto3\";\npackage com.cs301.shared;\n\noption java_multiple_files = true;\noption java_package = \"com.cs301.shared.protobuf\";\n\nmessage C2C {\n  string agent_id = 1;\n  string client_id = 2;\n  string client_email = 3;\n  string crud_type = 4;\n  CRUDInfo crud_info = 5;\n}\n\nmessage CRUDInfo {\n  string attribute = 1;\n  string before_value = 2;\n  string after_value = 3;\n}"
+}
+  
