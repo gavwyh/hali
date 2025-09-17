@@ -21,5 +21,30 @@ spring:
       properties:
         schema.registry.url: ${KAFKA_REGISTRY:http://127.0.0.1:8000}
 
+logging:
+  level:
+    com.cs301.crm: DEBUG
+    org.springframework: WARN
+    org.apache.kafka: WARN
+    org.mongodb: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: /var/log/app/logs-service.log
+  
+# Management endpoints for health checks and metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 cors:
   origin: ${CORS_ORIGIN:http://localhost:3000}
