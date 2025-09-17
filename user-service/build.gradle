@@ -70,6 +70,9 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.31.11') // Use the latest version
     implementation 'software.amazon.awssdk:secretsmanager'
     implementation 'software.amazon.glue:schema-registry-serde:1.1.23'
+    
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'ch.qos.logback:logback-classic'
 }
 
 dependencyManagement {
