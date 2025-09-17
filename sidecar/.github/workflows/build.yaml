@@ -1,0 +1,95 @@
+name: Sidecar Build & Push
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  VERSION: latest
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Permission for GA to get AWS OIDC connection
+      contents: read # Permission to check out current Git repo
+      security-events: write # Permission to submit security events to GitHub
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      
+      - name: Install C++17 build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Build sidecar with CMake
+        working-directory: ./sidecar
+        run: |
+          make clean
+          make build
+
+      - name: Build, tag and push sidecar image
+        working-directory: ./sidecar
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo "📦 Building and pushing sidecar Docker image..."
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.VERSION }} \
+            --cache-from=type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            --cache-to=type=inline \
+            --push .
+
+      - name: Code vulnerability scanning
+        uses: anchore/scan-action@v6
+        id: scan
+        with:
+          path: "./sidecar"
+          fail-build: false
+          severity-cutoff: 'high'
+
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+
+      - name: Delete image if scan fails
+        if: ${{ failure() && steps.scan.outcome == 'failure' }}
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo "🗑️ Deleting images due to security scan failure..."
+          aws ecr batch-delete-image \
+            --repository-name $ECR_REPOSITORY \
+            --image-ids imageTag=$IMAGE_TAG imageTag=${{ env.VERSION }} \
+            --region ${{ secrets.AWS_REGION }}
+          
+          echo "❌ Vulnerability scan failed - images deleted from ECR"
+          exit 1
+
+      - name: Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
